@@ -106,6 +106,7 @@ pub fn dump_test_instrs() {
     }
 }
 
+mod quorum_votes;
 pub mod service;
 /// Configuration for the state service.
 pub mod config {
@@ -1564,6 +1565,9 @@ async fn tfl_service_main_loop(internal_handle: TFLServiceHandle, global_seed: [
                                 .find(|(key, _)| *key == m.pub_key)
                                 .map(|(_, st)| st);
                             let last_seen = st.and_then(|st| st.last_direct_connection_utc);
+                            let [prevoted, precommitted] = st.map_or([false; 2], |st| {
+                                quorum_votes::observed_votes(st.no_yes_votes_in_my_height)
+                            });
                             TFLQuorumMember {
                                 pub_key: m.pub_key,
                                 voting_power: m.stake,
@@ -1576,8 +1580,8 @@ async fn tfl_service_main_loop(internal_handle: TFLServiceHandle, global_seed: [
                                 online: last_seen.is_some_and(|t| now_utc - t < ONLINE_SECS),
                                 last_seen_utc: last_seen,
                                 secs_since_seen: last_seen.map(|t| now_utc - t),
-                                prevoted: st.is_some_and(|st| st.no_yes_votes_in_my_height[0][1] > 0),
-                                precommitted: st.is_some_and(|st| st.no_yes_votes_in_my_height[1][1] > 0),
+                                prevoted,
+                                precommitted,
                                 highest_round_vote: st.map_or(0, |st| st.highest_round_vote),
                             }
                         })
