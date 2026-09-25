@@ -90,9 +90,9 @@ pub struct TFLQuorumMember {
     pub last_seen_utc: Option<i64>,
     /// Age of `last_seen_utc`.
     pub secs_since_seen: Option<i64>,
-    /// Whether it has prevoted for a value at our current height.
+    /// Whether we have observed any prevote (NIL or value) at our current height.
     pub prevoted: bool,
-    /// Whether it has precommitted for a value at our current height.
+    /// Whether we have observed any precommit (NIL or value) at our current height.
     pub precommitted: bool,
     /// Highest round we have seen it vote in at our current height.
     pub highest_round_vote: u32,
